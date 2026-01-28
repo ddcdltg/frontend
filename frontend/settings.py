@@ -75,11 +75,14 @@ WSGI_APPLICATION = 'frontend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'frontend_db',         # The name of the database you created
+        'USER': 'dali',         # The username you created
+        'PASSWORD': '12345678',     # The password you created
+        'HOST': 'localhost',          # The host where MariaDB is running (usually localhost)
+        'PORT': '3306',                   # Leave empty for the default port
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
