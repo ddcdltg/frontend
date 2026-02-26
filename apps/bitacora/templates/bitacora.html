@@ -1,0 +1,140 @@
+{% block content %}
+  <div class="mx-4">
+    <div class="dt-card mb-3">
+      <div class="p-3">
+          <div class="row g-2 align-items-end">
+            <div class="col-12 col-lg-2">
+              <label class="form-label mb-1">Módulo</label>
+              <select id="flt-module" class="form-select form-select-sm">
+                <option value="">Todos</option>
+                {% if modules %}
+                  {% for m in modules %}
+                    <option value="{{ m.value|default:m }}">{{ m.label|default:m }}</option>
+                  {% endfor %}
+                {% endif %}
+              </select>
+            </div>
+
+            <div class="col-12 col-lg-2">
+              <label class="form-label mb-1">Entidad</label>
+              <select id="flt-entity" class="form-select form-select-sm">
+                <option value="">Todas</option>
+                {% if entities %}
+                  {% for e in entities %}
+                    <option value="{{ e.value|default:e }}">{{ e.label|default:e }}</option>
+                  {% endfor %}
+                {% endif %}
+              </select>
+            </div>
+
+            <div class="col-12 col-lg-2">
+              <label class="form-label mb-1">Acción</label>
+              <select id="flt-action" class="form-select form-select-sm">
+                <option value="">Todas</option>
+                {% if actions %}
+                  {% for a in actions %}
+                    <option value="{{ a.value|default:a }}">{{ a.label|default:a }}</option>
+                  {% endfor %}
+                {% endif %} 
+              </select>
+            </div>
+
+            <div class="col-12 col-lg-2">
+              <label class="form-label mb-1">Desde</label>
+              <input id="flt-from" type="date" class="form-control form-control-sm">
+            </div>
+
+            <div class="col-12 col-lg-2">
+              <label class="form-label mb-1">Hasta</label>
+              <input id="flt-to" type="date" class="form-control form-control-sm">
+            </div>
+
+            <div class="col-12 col-lg-2">
+              <label class="form-label mb-1">Buscar</label>
+              <input id="flt-q" type="text" class="form-control form-control-sm"
+                     placeholder="usuario, IP, folio, entidad, etc.">
+            </div>
+
+            <div class="col-12 d-flex gap-2 justify-content-end mt-2">
+              <button class="btn btn-outline-secondary btn-sm" onclick="limpiarFiltros();">
+                Limpiar
+              </button>
+              <button class="btn btn-secondary btn-sm" onclick="recargarTabla();">
+                Recargar
+              </button>
+            </div>
+          </div>
+
+      </div>
+    </div>
+
+    <div class="dt-card">
+      <div class="table-responsive">
+
+        {% if access_bypass or "bitacora.consultar" or "bitacora_de_usuarios.consultar" in user_permissions %}
+          <table id="tabla-bitacoras" class="table table-bordered table-sm table-striped tabla-slim">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Evento</th>
+                <th>Fecha</th>
+                <th>Actor</th>
+                <th>Vista</th>
+                <th>IP</th>
+                <th>Acción</th>
+                <th>Entidad</th>
+                <th>Registro(id)</th>
+                <th>Campo</th>
+                <th>Valor</th>
+                <th>Detalle</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+
+          <div class="text-end mt-3">
+            <details class="btn .btn-light">
+              <summary><strong>Debug</strong></summary>
+              <div class="row g-2 mt-2">
+                <div class="col-12 col-lg-6">
+                  <h6>user_permissions (lista plana)</h6>
+                  <pre class="small bg-light p-2 rounded" style="white-space:pre-wrap">
+                    {{ user_permissions|join:", " }}
+                  </pre>
+                </div>
+
+                {% if view_perm_payload %}
+                <div class="col-12 col-lg-6">
+                  <h6>view_perm_payload (crudo del RS)</h6>
+                  <pre id="dbg-view-perm-payload" class="small bg-light p-2 rounded">{{ view_perm_payload }}</pre>
+                </div>
+                {% endif %}
+
+                {% if view_id %}
+                  <p>view_id: {{ view_id }}</p>
+                {% endif %}
+              </div>
+            </details>
+          </div>
+
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  {# Modal simple para ver el JSON del movimiento (si lo quieres) #}
+  <div class="modal fade" id="modalBitacora" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Detalle de movimiento</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <pre id="bitacora-json" class="small bg-light p-2 rounded" style="white-space:pre-wrap"></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
