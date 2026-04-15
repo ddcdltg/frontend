@@ -230,7 +230,7 @@ document.getElementById("flt-entity").addEventListener("change", function () {
 
   recordSelect.innerHTML = '<option value="">Cargando...</option>';
 
-  fetch(`/get-records/?entity=${entity}`)
+  fetch(`/bit/get-records/?entity=${entity}`)
     .then(res => res.json())
     .then(data => {
 
