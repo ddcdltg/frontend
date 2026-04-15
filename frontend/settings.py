@@ -75,13 +75,13 @@ WSGI_APPLICATION = 'frontend.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'frontend_db',         # The name of the database you created
-        'USER': 'dali',         # The username you created
-        'PASSWORD': '12345678',     # The password you created
-        'HOST': 'localhost',          # The host where MariaDB is running (usually localhost)
-        'PORT': '3306',                   # Leave empty for the default port
+    "default": {
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": "backend_db",   # ← NO frontend_db si no existe ahí
+        "USER": "dali",
+        "PASSWORD": "12345678",
+        "HOST": "127.0.0.1",
+        "PORT": "3306",
     }
 }
 

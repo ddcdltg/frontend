@@ -1,7 +1,7 @@
 from django.urls import path
-from . import views
+from .views import bitacora_view, get_records
 
 urlpatterns = [
-    path('hola/', views.hola_mundo, name='hola_mundo'),
-    path('index/', views.indexbit, name='indexbit')
+    path("bitacora/", bitacora_view, name="bitacora"),
+    path("get-records/", get_records, name="get_records")
 ]

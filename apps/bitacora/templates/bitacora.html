@@ -1,140 +1,214 @@
-{% block content %}
-  <div class="mx-4">
-    <div class="dt-card mb-3">
-      <div class="p-3">
-          <div class="row g-2 align-items-end">
-            <div class="col-12 col-lg-2">
-              <label class="form-label mb-1">Módulo</label>
-              <select id="flt-module" class="form-select form-select-sm">
-                <option value="">Todos</option>
-                {% if modules %}
-                  {% for m in modules %}
-                    <option value="{{ m.value|default:m }}">{{ m.label|default:m }}</option>
-                  {% endfor %}
-                {% endif %}
-              </select>
-            </div>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Bitácora</title>
 
-            <div class="col-12 col-lg-2">
-              <label class="form-label mb-1">Entidad</label>
-              <select id="flt-entity" class="form-select form-select-sm">
-                <option value="">Todas</option>
-                {% if entities %}
-                  {% for e in entities %}
-                    <option value="{{ e.value|default:e }}">{{ e.label|default:e }}</option>
-                  {% endfor %}
-                {% endif %}
-              </select>
-            </div>
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  >
+</head>
+<body>
 
-            <div class="col-12 col-lg-2">
-              <label class="form-label mb-1">Acción</label>
-              <select id="flt-action" class="form-select form-select-sm">
-                <option value="">Todas</option>
-                {% if actions %}
-                  {% for a in actions %}
-                    <option value="{{ a.value|default:a }}">{{ a.label|default:a }}</option>
-                  {% endfor %}
-                {% endif %} 
-              </select>
-            </div>
+<div class="mx-4">
 
-            <div class="col-12 col-lg-2">
-              <label class="form-label mb-1">Desde</label>
-              <input id="flt-from" type="date" class="form-control form-control-sm">
-            </div>
+  <!-- ================= FILTROS ================= -->
+  <div class="dt-card mb-3">
+    <div class="p-3">
+      <div class="row g-2 align-items-end">
 
-            <div class="col-12 col-lg-2">
-              <label class="form-label mb-1">Hasta</label>
-              <input id="flt-to" type="date" class="form-control form-control-sm">
-            </div>
+        <!-- MÓDULO -->
+        <div class="col-12 col-lg-2">
+          <label class="form-label mb-1">Módulo</label>
+          <select id="flt-module" class="form-select form-select-sm">
+            <option value="">Todos</option>
+            {% for m in modulos %}
+              <option value="{{ m }}">{{ m }}</option>
+            {% endfor %}
+          </select>
+        </div>
 
-            <div class="col-12 col-lg-2">
-              <label class="form-label mb-1">Buscar</label>
-              <input id="flt-q" type="text" class="form-control form-control-sm"
-                     placeholder="usuario, IP, folio, entidad, etc.">
-            </div>
+        <!-- ENTIDAD -->
+        <div class="col-12 col-lg-2">
+          <label class="form-label mb-1">Entidad</label>
+          <select id="flt-entity" class="form-select form-select-sm">
+            <option value="">Todas</option>
+            {% for e in entidades %}
+              <option value="{{ e }}">{{ e }}</option>
+            {% endfor %}
+          </select>
+        </div>
 
-            <div class="col-12 d-flex gap-2 justify-content-end mt-2">
-              <button class="btn btn-outline-secondary btn-sm" onclick="limpiarFiltros();">
-                Limpiar
-              </button>
-              <button class="btn btn-secondary btn-sm" onclick="recargarTabla();">
-                Recargar
-              </button>
-            </div>
-          </div>
+        <!-- REGISTRO -->
+        <div class="col-12 col-lg-2">
+          <label class="form-label mb-1">Registro</label>
+          <select id="flt-record" class="form-select form-select-sm">
+            <option value="">Todos</option>
+            {% for r in registros_catalogo %}
+              <option value="{{ r }}">{{ r }}</option>
+            {% endfor %}
+          </select>
+        </div>
 
-      </div>
-    </div>
+        <!-- ACCIÓN -->
+        <div class="col-12 col-lg-2">
+          <label class="form-label mb-1">Acción</label>
+          <select id="flt-action" class="form-select form-select-sm">
+            <option value="">Todas</option>
+            {% for a in acciones %}
+              <option value="{{ a }}">{{ a }}</option>
+            {% endfor %}
+          </select>
+        </div>
 
-    <div class="dt-card">
-      <div class="table-responsive">
+        <!-- FECHAS -->
+        <div class="col-12 col-lg-2">
+          <label class="form-label mb-1">Desde</label>
+          <input id="flt-from" type="date" class="form-control form-control-sm">
+        </div>
 
-        {% if access_bypass or "bitacora.consultar" or "bitacora_de_usuarios.consultar" in user_permissions %}
-          <table id="tabla-bitacoras" class="table table-bordered table-sm table-striped tabla-slim">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Evento</th>
-                <th>Fecha</th>
-                <th>Actor</th>
-                <th>Vista</th>
-                <th>IP</th>
-                <th>Acción</th>
-                <th>Entidad</th>
-                <th>Registro(id)</th>
-                <th>Campo</th>
-                <th>Valor</th>
-                <th>Detalle</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
+        <div class="col-12 col-lg-2">
+          <label class="form-label mb-1">Hasta</label>
+          <input id="flt-to" type="date" class="form-control form-control-sm">
+        </div>
 
-          <div class="text-end mt-3">
-            <details class="btn .btn-light">
-              <summary><strong>Debug</strong></summary>
-              <div class="row g-2 mt-2">
-                <div class="col-12 col-lg-6">
-                  <h6>user_permissions (lista plana)</h6>
-                  <pre class="small bg-light p-2 rounded" style="white-space:pre-wrap">
-                    {{ user_permissions|join:", " }}
-                  </pre>
-                </div>
+        <!-- BUSCAR -->
+        <div class="col-12 col-lg-2">
+          <label class="form-label mb-1">Buscar</label>
+          <input id="flt-q" type="text" class="form-control form-control-sm">
+        </div>
 
-                {% if view_perm_payload %}
-                <div class="col-12 col-lg-6">
-                  <h6>view_perm_payload (crudo del RS)</h6>
-                  <pre id="dbg-view-perm-payload" class="small bg-light p-2 rounded">{{ view_perm_payload }}</pre>
-                </div>
-                {% endif %}
+        <!-- BOTONES -->
+        <div class="col-12 d-flex gap-2 justify-content-end mt-2">
+          <button class="btn btn-outline-secondary btn-sm" onclick="limpiarFiltros()">Limpiar</button>
+          <button class="btn btn-secondary btn-sm" onclick="recargarTabla()">Recargar</button>
+        </div>
 
-                {% if view_id %}
-                  <p>view_id: {{ view_id }}</p>
-                {% endif %}
-              </div>
-            </details>
-          </div>
-
-        {% endif %}
       </div>
     </div>
   </div>
 
-  {# Modal simple para ver el JSON del movimiento (si lo quieres) #}
-  <div class="modal fade" id="modalBitacora" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Detalle de movimiento</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <pre id="bitacora-json" class="small bg-light p-2 rounded" style="white-space:pre-wrap"></pre>
-        </div>
-      </div>
+  <!-- ================= TABLA ================= -->
+  <div class="dt-card">
+    <div class="table-responsive">
+
+      <table class="table table-bordered table-sm table-striped">
+
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Evento</th>
+            <th>Fecha</th>
+            <th>Actor</th>
+            <th>Vista</th>
+            <th>IP</th>
+            <th>Acción</th>
+            <th>Entidad</th>
+            <th>Registro</th>
+            <th>Campo</th>
+            <th>Valor</th>
+            <th>Detalle</th>
+          </tr>
+        </thead>
+
+        <tbody>
+        {% for r in registros %}
+          <tr>
+            <td>{{ r.audit_id }}</td>
+            <td>{{ r.event_id|default:"-" }}</td>
+            <td>{{ r.created_at }}</td>
+            <td>{{ r.actor_id|default:"-" }}</td>
+            <td>{{ r.view_id }}</td>
+            <td>{{ r.ip_address|default:"-" }}</td>
+            <td><span class="badge bg-secondary">{{ r.action }}</span></td>
+            <td>{{ r.table_name }}</td>
+            <td>{{ r.record_id }}</td>
+            <td>{{ r.field_name|default:"-" }}</td>
+            <td>{{ r.value|default:"-" }}</td>
+            <td>
+              <button class="btn btn-sm btn-outline-secondary"
+                      onclick="verDetalle('{{ r.meta|escapejs }}')">
+                Ver
+              </button>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="12" class="text-center">Sin registros</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+
+      </table>
+
     </div>
   </div>
 
-{% endblock %}
+</div>
+
+<!-- ================= MODAL ================= -->
+<div class="modal fade" id="modalBitacora" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Detalle de movimiento</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <pre id="bitacora-json" class="small bg-light p-2 rounded"></pre>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ================= JS ================= -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+function verDetalle(json) {
+  document.getElementById("bitacora-json").textContent =
+    json && json !== "None" ? json : "Sin detalle";
+  new bootstrap.Modal(document.getElementById("modalBitacora")).show();
+}
+
+function limpiarFiltros() {
+  document.querySelectorAll(
+    '#flt-module, #flt-entity, #flt-record, #flt-action, #flt-from, #flt-to, #flt-q'
+  ).forEach(el => el.value = '');
+}
+
+function recargarTabla() {
+  location.reload();
+}
+
+/* ================= AJAX: ENTIDAD → REGISTROS ================= */
+document.getElementById("flt-entity").addEventListener("change", function () {
+  const entity = this.value;
+  const recordSelect = document.getElementById("flt-record");
+
+  recordSelect.innerHTML = '<option value="">Cargando...</option>';
+
+  fetch(`/get-records/?entity=${entity}`)
+    .then(res => res.json())
+    .then(data => {
+      recordSelect.innerHTML = '<option value="">Todos</option>';
+
+      data.forEach(r => {
+        const option = document.createElement("option");
+        option.value = r;
+        option.textContent = r;
+        recordSelect.appendChild(option);
+      });
+    })
+    .catch(() => {
+      recordSelect.innerHTML = '<option value="">Error</option>';
+    });
+});
+</script>
+
+</body>
+</html>
