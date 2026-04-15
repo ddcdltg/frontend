@@ -68,7 +68,7 @@ class CertificateManager:
 # ================= INSTANCIA =================
 cm = CertificateManager(cache_ttl=3600, timeout=5.0)
 API_BASE_BACK_URL = "http://127.0.0.1:9002"
-BASE = settings.API_BASE_BACK_URL.rstrip("/") + "/data_bitacora"
+BASE = API_BASE_BACK_URL.rstrip("/") + "/data_bitacora"
 
 # ================= HELPERS =================
 def build_url(base, endpoint, params=None):
