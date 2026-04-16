@@ -84,10 +84,9 @@ def build_url(base, endpoint, params=None):
 
 def build_headers(request):
     return {
-        "Content-Type": "application/json",
-        "Authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjMiLCJuYW1lIjoiVXN1YXJpbyBQcnVlYmEiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MTAwMDAwMDB9.dGVzdF9zaWduYXR1cmFfbm9fdmFsaWRh"
+        "Accept": "application/json",
+        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjMiLCJuYW1lIjoiVXN1YXJpbyBQcnVlYmEiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MTAwMDAwMDB9.dGVzdF9zaWduYXR1cmFfbm9fdmFsaWRh"
     }
-
 
 # CLIENTE BITÁCORA
 
@@ -127,6 +126,7 @@ class BitacoraAPIClient:
                 "POST",
                 url,
                 headers=build_headers(request),
+                follow_redirects=True,
                 json=dt_params,
                 timeout=10.0,
             )
