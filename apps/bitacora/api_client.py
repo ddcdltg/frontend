@@ -6,9 +6,9 @@ from django.conf import settings
 
 log = logging.getLogger(__name__)
 
-# =========================
+
 # CERTIFICATE MANAGER
-# =========================
+
 class CertificateManager:
 
     def __init__(self, cache_ttl=3600, timeout=5.0):
@@ -56,9 +56,9 @@ class CertificateManager:
             raise e
 
 
-# =========================
+
 # CONFIG
-# =========================
+
 cm = CertificateManager(cache_ttl=3600, timeout=10.0)
 
 API_BASE_BACK_URL = getattr(
@@ -70,9 +70,9 @@ API_BASE_BACK_URL = getattr(
 BASE = API_BASE_BACK_URL.rstrip("/") + "/data_bitacora"
 
 
-# =========================
+
 # HELPERS
-# =========================
+
 def build_url(base, endpoint, params=None):
     from urllib.parse import urlencode
 
@@ -83,21 +83,14 @@ def build_url(base, endpoint, params=None):
 
 
 def build_headers(request):
-    headers = {
-        "Content-Type": "application/json"
+    return {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjMiLCJuYW1lIjoiVXN1YXJpbyBQcnVlYmEiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MTAwMDAwMDB9.dGVzdF9zaWduYXR1cmFfbm9fdmFsaWRh"
     }
 
-    if request and hasattr(request, "META"):
-        auth = request.META.get("HTTP_AUTHORIZATION")
-        if auth:
-            headers["Authorization"] = auth
 
-    return headers
-
-
-# =========================
 # CLIENTE BITÁCORA
-# =========================
+
 class BitacoraAPIClient:
 
     @classmethod
