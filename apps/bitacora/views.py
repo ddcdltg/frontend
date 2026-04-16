@@ -9,11 +9,7 @@ from .api_client import BitacoraAPIClient
 
 logger = logging.getLogger("name")
 
-# =========================
-
 # RECORDS POR ENTIDAD (AJAX)
-
-# =========================
 
 def get_records(request):
     v = 15
@@ -25,12 +21,7 @@ def get_records(request):
     # devolvemos solo el array limpio
     return JsonResponse(resp.get("response", []), safe=False)
 
-
-# =========================
-
 # VISTA PRINCIPAL
-
-# =========================
 
 def bitacora_view(request):
     v = 15
@@ -44,15 +35,15 @@ def bitacora_view(request):
     }
 
     try:
-        # ===== ENTIDADES =====
+        # ENTIDADES
         entities_resp = BitacoraAPIClient.list_entities(request, v)
         context["entidades"] = entities_resp.get("response", [])
 
-        # ===== ACCIONES =====
+        # ACCIONES
         actions_resp = BitacoraAPIClient.list_actions(request, v)
         context["acciones"] = actions_resp.get("response", [])
 
-        # ===== RECORDS (DEFAULT: usuarios) =====
+        # RECORDS (DEFAULT: usuarios)
         entidad = request.GET.get("entity", "usuarios")
 
         records_resp = BitacoraAPIClient.list_records(
@@ -67,12 +58,7 @@ def bitacora_view(request):
 
     return render(request, "bitacora.html", context)
 
-
-# =========================
-
 # DATATABLE SERVER-SIDE
-
-# =========================
 
 @csrf_exempt
 def bitacora_data(request):
@@ -88,7 +74,7 @@ def bitacora_data(request):
     try:
             body = json.loads(request.body)
 
-            # ===== PARAMS BASE DATATABLE =====
+            # PARAMS BASE DATATABLE
             dt_params = {
                 "draw": body.get("draw", 1),
                 "start": body.get("start", 0),
@@ -97,7 +83,7 @@ def bitacora_data(request):
                 "columns": body.get("columns", []),
             }
 
-            # ===== FILTROS =====
+            # FILTROS 
             filters = {}
 
             entity = body.get("entity")
@@ -124,7 +110,7 @@ def bitacora_data(request):
             if filters:
                 dt_params["filters"] = filters
 
-            # ===== LLAMADA AL BACK =====
+            # LLAMADA AL BACK 
             resp = BitacoraAPIClient.list_dt(
                 15,
                 dt_params,
