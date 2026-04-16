@@ -135,3 +135,4 @@ def bitacora_data(request):
                 "recordsFiltered": 0,
                 "data": []
             })
+    
