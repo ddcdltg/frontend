@@ -13,6 +13,6 @@ path("bitacora/", bitacora_view, name="bitacora"),
 path("get-records/", get_records, name="get_records"),
 
 # DataTables server-side (filtros + paginación)
-path("bit/data/", bitacora_data, name="bitacora_data"),
+path("data/", bitacora_data, name="bitacora_data"),
 
 ]
