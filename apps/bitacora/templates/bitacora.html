@@ -175,8 +175,21 @@ function limpiarFiltros() {
 
 /* ================= RECARGAR ================= */
 function recargarTabla() {
-  table.ajax.reload();
+  if (table) {
+    table.page(0).draw(false); 
+  }
 }
+
+document.addEventListener("keydown", function(e) {
+  if (e.key === "Enter") {
+    recargarTabla();
+  }
+});
+
+console.log({
+  entity: $('#flt-entity').val(),
+  action: $('#flt-action').val(),
+});
 
 /* ================= DATA TABLE ================= */
 $(document).ready(function () {
