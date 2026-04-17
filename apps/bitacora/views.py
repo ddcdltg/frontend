@@ -109,6 +109,9 @@ def bitacora_data(request):
             if date_to:
                 filters["date_to"] = date_to
 
+            if filters:
+                dt_params["filters"] = filters
+
             # LLAMADA AL BACK 
             resp = BitacoraAPIClient.list_dt(
                 15,
