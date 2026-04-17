@@ -200,36 +200,32 @@ console.log({
 $(document).ready(function () {
 
   table = $('#tabla-bitacora').DataTable({
-    processing: true,
-    serverSide: false,
+  processing: true,
+  serverSide: true,
 
-    dom: 'Bfrtip',
-
-    buttons: [
-      {
-        extend: 'csv',
-        text: 'Exportar CSV',
-        className: 'btn btn-sm btn-outline-primary'
-      },
-      {
-        extend: 'excel',
-        text: 'Exportar Excel',
-        className: 'btn btn-sm btn-outline-success'
-      }
-    ],
-
-    ajax: {
-      url: "/bit/data/",
-      type: "POST",
-      contentType: "application/json",
-      data: function (d) {
+  ajax: {
+    url: "/bit/data/",
+    type: "POST",
+    contentType: "application/json",
+    data: function (d) {
         return JSON.stringify({
-          ...d,
-          entity: $('#flt-entity').val(),
-          action: $('#flt-action').val(),
-          record: $('#flt-record').val(),
-          date_from: $('#flt-from').val(),
-          date_to: $('#flt-to').val(),
+          draw: d.draw,
+          start: d.start,
+          length: d.length,
+          order: d.order.map(o => ({
+            column: o.column,
+            dir: o.dir
+          })),
+          columns: d.columns.map(c => ({
+            data: c.data
+          })),
+          filters: {
+            table_name: $('#flt-entity').val(),
+            action: $('#flt-action').val(),
+            record_id: $('#flt-record').val(),
+            date_from: $('#flt-from').val(),
+            date_to: $('#flt-to').val()
+          }
         });
       }
     },
@@ -257,6 +253,8 @@ $(document).ready(function () {
   });
 
 });
+
+
 /* ================= ENTIDAD → RECORDS ================= */
 $('#flt-entity').on('change', function () {
 
@@ -281,7 +279,7 @@ $('#flt-entity').on('change', function () {
           new Option(r.record_id, r.record_id, false, false)
         );
       });
-      
+
       recordSelect.trigger('change');
 
     })
