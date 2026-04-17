@@ -126,7 +126,19 @@
   </div>
 
   <div class="modal-body">
-    <pre id="bitacora-json" class="small bg-light p-2 rounded"></pre>
+    <div class="table-responsive">
+      <table class="table table-sm table-bordered table-striped">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Campo</th>
+            <th>Valor</th>
+          </tr>
+        </thead>
+        <tbody id="bitacora-body">
+        </tbody>
+      </table>
+    </div>
   </div>
 
 </div>
@@ -162,16 +174,34 @@ let table;
 /* ================= MODAL ================= */
 function verDetalle(event_id) {
 
-  const pre = document.getElementById("bitacora-json");
-  pre.textContent = "Cargando...";
+  const tbody = document.getElementById("bitacora-body");
+  tbody.innerHTML = `<tr><td colspan="3">Cargando...</td></tr>`;
 
   fetch(`/bit/event-detail/${event_id}/`)
     .then(res => res.json())
     .then(data => {
-      pre.textContent = JSON.stringify(data, null, 2);
+
+      if (!data || data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="3">Sin datos</td></tr>`;
+        return;
+      }
+
+      let rows = "";
+
+      data.forEach(item => {
+        rows += `
+          <tr>
+            <td>${item.audit_id}</td>
+            <td><span class="badge bg-primary">${item.field_name}</span></td>
+            <td style="max-width:200px; word-break:break-word;">${item.value}</td>
+          </tr>
+        `;
+      });
+
+      tbody.innerHTML = rows;
     })
     .catch(err => {
-      pre.textContent = "Error al cargar detalle";
+      tbody.innerHTML = `<tr><td colspan="3">Error al cargar</td></tr>`;
       console.error(err);
     });
 
