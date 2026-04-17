@@ -336,27 +336,6 @@ $(document).ready(function () {
 
 });
 
-
-function showJsonModal(obj) {
-  const pre = document.getElementById("bitacora-json");
-  if (pre) pre.textContent = JSON.stringify(obj, null, 2);
-
-  const modalEl = document.getElementById("modalBitacora");
-  if (modalEl && window.bootstrap?.Modal) {
-    const m = window.bootstrap.Modal.getOrCreateInstance(modalEl);
-    m.show();
-  } else {
-    // fallback
-    if (window.Swal) {
-      Swal.fire({
-        title: "Detalle",
-        html: <pre style="text-align:left; white-space:pre-wrap">${JSON.stringify(obj, null, 2)}</pre>,
-        width: 900,
-      });
-    }
-  }
-}
-
 </script>
 
 </body>
