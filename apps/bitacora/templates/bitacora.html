@@ -157,13 +157,23 @@
 let table;
 
 /* ================= MODAL ================= */
-function verDetalle(json) {
-  document.getElementById("bitacora-json").textContent =
-    json && json !== "None" ? json : "Sin detalle";
+function verDetalle(event_id) {
+
+  const pre = document.getElementById("bitacora-json");
+  pre.textContent = "Cargando...";
+
+  fetch(`/bit/event-detail/${event_id}/`)
+    .then(res => res.json())
+    .then(data => {
+      pre.textContent = JSON.stringify(data, null, 2);
+    })
+    .catch(err => {
+      pre.textContent = "Error al cargar detalle";
+      console.error(err);
+    });
 
   new bootstrap.Modal(document.getElementById("modalBitacora")).show();
 }
-
 /* ================= LIMPIAR ================= */
 function limpiarFiltros() {
 
@@ -263,10 +273,10 @@ $(document).ready(function () {
       { data: "field_name" },
       { data: "value" },
       {
-        data: "meta",
-        render: function (data) {
+        data: null,
+        render: function (data, type, row) {
           return `<button class="btn btn-sm btn-outline-secondary"
-                  onclick="verDetalle('${data || ''}')">Ver</button>`;
+                  onclick="verDetalle('${row.event_id}')">Ver</button>`;
         }
       }
     ]
@@ -325,6 +335,27 @@ $(document).ready(function () {
   });
 
 });
+
+
+function showJsonModal(obj) {
+  const pre = document.getElementById("bitacora-json");
+  if (pre) pre.textContent = JSON.stringify(obj, null, 2);
+
+  const modalEl = document.getElementById("modalBitacora");
+  if (modalEl && window.bootstrap?.Modal) {
+    const m = window.bootstrap.Modal.getOrCreateInstance(modalEl);
+    m.show();
+  } else {
+    // fallback
+    if (window.Swal) {
+      Swal.fire({
+        title: "Detalle",
+        html: <pre style="text-align:left; white-space:pre-wrap">${JSON.stringify(obj, null, 2)}</pre>,
+        width: 900,
+      });
+    }
+  }
+}
 
 </script>
 

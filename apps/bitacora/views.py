@@ -1,9 +1,9 @@
 from django.shortcuts import render
-from django.http import JsonResponse
+from django.http import Http404, HttpRequest, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import logging
 import json
-
+from django.views import View
 from .models import AuditAdmin
 from .api_client import BitacoraAPIClient
 
@@ -142,3 +142,20 @@ def bitacora_data(request):
                 "recordsFiltered": 0,
                 "data": []
             })
+    
+
+
+class BitacoraEventDetailData(View):
+    def get(self, request: HttpRequest, event_id: str):
+        view_id = 15
+
+        result = BitacoraAPIClient.get_event(
+            request=request,
+            event_id=event_id,
+            v=view_id,
+        )
+
+        status_code = int(result.get("httpCode", 200)) if isinstance(result, dict) else 200
+        rows = (result.get("response") if isinstance(result, dict) else None) or []
+
+        return JsonResponse(rows, safe=False, status=status_code)
