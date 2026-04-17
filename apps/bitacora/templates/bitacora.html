@@ -174,12 +174,12 @@ function limpiarFiltros() {
 }
 
 /* ================= RECARGAR ================= */
-function buscadorTabla() { 
+function recargarTabla() { 
   table.ajax.reload(); 
 }
 
 /* ================= Buscar ================= */
-function recargarTabla() {
+function buscadorTabla() {
   if (table) {
     table.page(0).draw(false);
   }
@@ -187,7 +187,7 @@ function recargarTabla() {
 
 document.addEventListener("keydown", function(e) {
   if (e.key === "Enter") {
-    recargarTabla();
+    buscadorTabla();
   }
 });
 
