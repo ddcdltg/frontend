@@ -80,6 +80,8 @@ def bitacora_data(request):
                 "length": body.get("length", 10),
                 "order": body.get("order", [0]),
                 "columns": body.get("columns", []),
+                "search_value" : data.get('search', '')
+
             }
 
             # FILTROS
@@ -92,7 +94,7 @@ def bitacora_data(request):
             record = f.get("record_id")
             date_from = f.get("date_from")
             date_to = f.get("date_to")
-            search_value = data.get('search', '')
+            
 
             if entity:
                 filters["table_name"] = entity
