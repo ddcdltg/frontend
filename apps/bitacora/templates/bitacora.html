@@ -208,29 +208,26 @@ $(document).ready(function () {
     type: "POST",
     contentType: "application/json",
     data: function (d) {
-      return JSON.stringify({
-        draw: d.draw,
-        start: d.start,
-        length: d.length,
-        order: d.order.map(o => ({
-          column: o.column,
-          dir: o.dir
-        })),
-        columns: d.columns.map(c => ({
-          data: c.data
-        })),
-        filters: {
-          table_name: $('#flt-entity').val(),
-          action: $('#flt-action').val(),
-          record_id: $('#flt-record').val(),
-          date_from: $('#flt-from').val(),
-          date_to: $('#flt-to').val()
-        }
-      });
-    },
-
-    dataSrc: function (json) {
-      return json.response.data;
+        return JSON.stringify({
+          draw: d.draw,
+          start: d.start,
+          length: d.length,
+          order: d.order.map(o => ({
+            column: o.column,
+            dir: o.dir
+          })),
+          columns: d.columns.map(c => ({
+            data: c.data
+          })),
+          filters: {
+            table_name: $('#flt-entity').val(),
+            action: $('#flt-action').val(),
+            record_id: $('#flt-record').val(),
+            date_from: $('#flt-from').val(),
+            date_to: $('#flt-to').val()
+          }
+        });
+      }
     },
 
     columns: [

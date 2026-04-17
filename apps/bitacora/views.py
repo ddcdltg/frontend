@@ -83,14 +83,16 @@ def bitacora_data(request):
                 "columns": body.get("columns", []),
             }
 
-            # FILTROS 
+            # FILTROS
             filters = {}
 
-            entity = body.get("entity")
-            action = body.get("action")
-            record = body.get("record")
-            date_from = body.get("date_from")
-            date_to = body.get("date_to")
+            f = body.get("filters", {})
+
+            entity = f.get("table_name")
+            action = f.get("action")
+            record = f.get("record_id")
+            date_from = f.get("date_from")
+            date_to = f.get("date_to")
 
             if entity:
                 filters["table_name"] = entity
@@ -106,9 +108,6 @@ def bitacora_data(request):
 
             if date_to:
                 filters["date_to"] = date_to
-
-            if filters:
-                dt_params["filters"] = filters
 
             # LLAMADA AL BACK 
             resp = BitacoraAPIClient.list_dt(
