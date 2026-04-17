@@ -79,7 +79,7 @@ def bitacora_data(request):
                 "draw": body.get("draw", 1),
                 "start": body.get("start", 0),
                 "length": body.get("length", 10),
-                "order": body.get("order", []),
+                "order": body.get("order", [0]),
                 "columns": body.get("columns", []),
             }
 
