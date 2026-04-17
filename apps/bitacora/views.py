@@ -59,7 +59,7 @@ def bitacora_view(request):
     return render(request, "bitacora.html", context)
 
 # DATATABLE SERVER-SIDE
-
+"""
 @csrf_exempt
 def bitacora_data(request):
     if request.method != "POST":
@@ -138,3 +138,87 @@ def bitacora_data(request):
                 "data": []
             })
     
+"""
+
+import json
+from django.http import JsonResponse
+from django.db.models import Q
+
+def bitacora_data(request):
+    try:
+        data = json.loads(request.body)
+
+        draw = data.get('draw', 1)
+        start = data.get('start', 0)
+        length = data.get('length', 10)
+
+        search_value = data.get('search', '')  # 🔥 AQUÍ
+
+        filters = data.get('filters', {})
+
+        table_name = filters.get('table_name')
+        action = filters.get('action')
+        record_id = filters.get('record_id')
+        date_from = filters.get('date_from')
+        date_to = filters.get('date_to')
+
+        queryset = AuditAdmin.objects.all()
+
+        # ================= FILTROS =================
+        if table_name:
+            queryset = queryset.filter(table_name=table_name)
+
+        if action:
+            queryset = queryset.filter(action=action)
+
+        if record_id:
+            queryset = queryset.filter(record_id=record_id)
+
+        if date_from:
+            queryset = queryset.filter(created_at__date__gte=date_from)
+
+        if date_to:
+            queryset = queryset.filter(created_at__date__lte=date_to)
+
+        # ================= SEARCH GLOBAL =================
+        if search_value:
+            queryset = queryset.filter(
+                Q(event_id__icontains=search_value) |
+                Q(action__icontains=search_value) |
+                Q(table_name__icontains=search_value) |
+                Q(record_id__icontains=search_value) |
+                Q(field_name__icontains=search_value) |
+                Q(value__icontains=search_value)
+            )
+
+        total_records = queryset.count()
+
+        # ================= PAGINACIÓN =================
+        queryset = queryset.order_by('audit_id')[start:start+length]
+
+        data_result = list(queryset.values(
+            "audit_id",
+            "event_id",
+            "created_at",
+            "actor_id",
+            "view_id",
+            "ip_address",
+            "action",
+            "table_name",
+            "record_id",
+            "field_name",
+            "value",
+            "meta"
+        ))
+
+        return JsonResponse({
+            "draw": draw,
+            "recordsTotal": total_records,
+            "recordsFiltered": total_records,
+            "data": data_result
+        })
+
+    except Exception as e:
+        return JsonResponse({
+            "error": str(e)
+        }, status=500)
