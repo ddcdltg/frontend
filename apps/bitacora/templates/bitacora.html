@@ -166,13 +166,17 @@ function verDetalle(json) {
 
 /* ================= LIMPIAR ================= */
 function limpiarFiltros() {
-  document.querySelectorAll(
-    '#flt-entity, #flt-record, #flt-action, #flt-from, #flt-to'
-  ).forEach(el => el.value = '');
 
+  $('#flt-entity').val(null).trigger('change');
+  $('#flt-record').val(null).trigger('change');
+  $('#flt-action').val(null).trigger('change');
+
+  $('#flt-from').val('');
+  $('#flt-to').val('');
+
+  table.search('').draw();   // limpia buscador global
   table.ajax.reload();
 }
-
 /* ================= RECARGAR ================= */
 function recargarTabla() { 
   table.ajax.reload(); 
