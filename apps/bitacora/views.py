@@ -49,7 +49,7 @@ def bitacora_view(request):
         records_resp = BitacoraAPIClient.list_records(
             request,
             entidad,
-            
+            v,
         )
         context["registros_catalogo"] = []
 
