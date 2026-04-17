@@ -201,9 +201,7 @@ $(document).ready(function () {
 
   table = $('#tabla-bitacora').DataTable({
     processing: true,
-    serverSide: true, 
-
-    order: [[0, 'asc']],
+    serverSide: false,
 
     dom: 'Bfrtip',
 
@@ -224,35 +222,15 @@ $(document).ready(function () {
       url: "/bit/data/",
       type: "POST",
       contentType: "application/json",
-
       data: function (d) {
-
-        let formData = {
-          draw: d.draw,
-          start: d.start,
-          length: d.length,
-          "search[value]": d.search.value
-        };
-
-        // ===== ORDER =====
-        if (d.order && d.order.length > 0) {
-          formData["order[0][column]"] = d.order[0].column;
-          formData["order[0][dir]"] = d.order[0].dir;
-        }
-
-        // ===== COLUMNS =====
-        d.columns.forEach((col, i) => {
-          formData[`columns[${i}][data]`] = col.data;
+        return JSON.stringify({
+          ...d,
+          entity: $('#flt-entity').val(),
+          action: $('#flt-action').val(),
+          record: $('#flt-record').val(),
+          date_from: $('#flt-from').val(),
+          date_to: $('#flt-to').val(),
         });
-
-        // ===== FILTROS =====
-        formData["entity"] = $('#flt-entity').val();
-        formData["action"] = $('#flt-action').val();
-        formData["record"] = $('#flt-record').val();
-        formData["date_from"] = $('#flt-from').val();
-        formData["date_to"] = $('#flt-to').val();
-
-        return JSON.stringify(formData);
       }
     },
 
@@ -260,10 +238,10 @@ $(document).ready(function () {
       { data: "audit_id" },
       { data: "event_id" },
       { data: "created_at" },
-      { data: "actor_id" },     
-      { data: "view_id" },      
+      { data: "actor_id" },
+      { data: "view_id" },
       { data: "ip_address" },
-      { data: "action" },       
+      { data: "action" },
       { data: "table_name" },
       { data: "record_id" },
       { data: "field_name" },
@@ -277,6 +255,38 @@ $(document).ready(function () {
       }
     ]
   });
+
+});
+/* ================= ENTIDAD → RECORDS ================= */
+document.getElementById("flt-entity").addEventListener("change", function () {
+
+  const entity = this.value;
+  const recordSelect = document.getElementById("flt-record");
+
+  if (!entity) {
+    recordSelect.innerHTML = '<option value="">Todos</option>';
+    return;
+  }
+
+  recordSelect.innerHTML = '<option value="">Cargando...</option>';
+
+  fetch(`/bit/get-records/?entity=${entity}`)
+    .then(res => res.json())
+    .then(data => {
+
+      recordSelect.innerHTML = '<option value="">Todos</option>';
+
+      data.forEach(r => {
+        const option = document.createElement("option");
+        option.value = r.record_id;
+        option.textContent = r.record_id;
+        recordSelect.appendChild(option);
+      });
+
+    })
+    .catch(() => {
+      recordSelect.innerHTML = '<option value="">Error</option>';
+    });
 
 });
 

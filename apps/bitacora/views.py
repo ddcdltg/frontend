@@ -9,20 +9,23 @@ from .api_client import BitacoraAPIClient
 
 logger = logging.getLogger("name")
 
+# RECORDS POR ENTIDAD (AJAX)
 
-# ================= RECORDS POR ENTIDAD =================
 def get_records(request):
     v = 15
     entity = request.GET.get("entity", "usuarios")
 
+
     resp = BitacoraAPIClient.list_records(request, entity, v)
 
+    # devolvemos solo el array limpio
     return JsonResponse(resp.get("response", []), safe=False)
 
+# VISTA PRINCIPAL
 
-# ================= VISTA PRINCIPAL =================
 def bitacora_view(request):
     v = 15
+
 
     context = {
         "modulos": [],
@@ -40,7 +43,7 @@ def bitacora_view(request):
         actions_resp = BitacoraAPIClient.list_actions(request, v)
         context["acciones"] = actions_resp.get("response", [])
 
-        # RECORDS DEFAULT
+        # RECORDS (DEFAULT: usuarios)
         entidad = request.GET.get("entity", "usuarios")
 
         records_resp = BitacoraAPIClient.list_records(
@@ -55,109 +58,81 @@ def bitacora_view(request):
 
     return render(request, "bitacora.html", context)
 
+# DATATABLE SERVER-SIDE
 
-# ================= DATATABLE SERVER-SIDE =================
 @csrf_exempt
 def bitacora_data(request):
-
     if request.method != "POST":
         return JsonResponse({
-            "draw": 1,
-            "recordsTotal": 0,
-            "recordsFiltered": 0,
-            "data": []
+        "draw": 1,
+        "recordsTotal": 0,
+        "recordsFiltered": 0,
+        "data": []
         })
+
 
     try:
-        body = json.loads(request.body)
+            body = json.loads(request.body)
 
-        # ===== PARAMS BASE =====
-        draw = body.get("draw", 1)
-        start = body.get("start", 0)
-        length = body.get("length", 10)
+            # PARAMS BASE DATATABLE
+            dt_params = {
+                "draw": body.get("draw", 1),
+                "start": body.get("start", 0),
+                "length": body.get("length", 10),
+                "order": body.get("order", [0]),
+                "columns": body.get("columns", []),
+            }
 
-        # ===== PARSE COLUMNS =====
-        columns = []
-        i = 0
-        while True:
-            col = body.get(f"columns[{i}][data]")
-            if col is None:
-                break
-            columns.append(col)
-            i += 1
+            # FILTROS 
+            filters = {}
 
-        # ===== PARSE ORDER =====
-        order_column = body.get("order[0][column]")
-        order_dir = body.get("order[0][dir]")
+            entity = body.get("entity")
+            action = body.get("action")
+            record = body.get("record")
+            date_from = body.get("date_from")
+            date_to = body.get("date_to")
 
-        order_by = None
-        if order_column is not None and columns:
-            try:
-                col_name = columns[int(order_column)]
-                order_by = f"-{col_name}" if order_dir == "desc" else col_name
-            except Exception:
-                logger.warning("Error parsing order column")
+            if entity:
+                filters["table_name"] = entity
 
-        # ===== FILTROS =====
-        filters = {}
+            if action:
+                filters["action"] = action
 
-        entity = body.get("entity")
-        action = body.get("action")
-        record = body.get("record")
-        date_from = body.get("date_from")
-        date_to = body.get("date_to")
+            if record:
+                filters["record_id"] = record
 
-        if entity:
-            filters["table_name"] = entity
+            if date_from:
+                filters["date_from"] = date_from
 
-        if action:
-            filters["action"] = action
+            if date_to:
+                filters["date_to"] = date_to
 
-        if record:
-            filters["record_id"] = record
+            if filters:
+                dt_params["filters"] = filters
 
-        if date_from:
-            filters["date_from"] = date_from
+            # LLAMADA AL BACK 
+            resp = BitacoraAPIClient.list_dt(
+                15,
+                dt_params,
+                request
+            )
 
-        if date_to:
-            filters["date_to"] = date_to
+            data = resp.get("response", {})
 
-        # ===== PARAMS PARA API =====
-        dt_params = {
-            "draw": draw,
-            "start": start,
-            "length": length,
-        }
-
-        if order_by:
-            dt_params["order_by"] = order_by
-
-        if filters:
-            dt_params["filters"] = filters
-
-        # ===== LLAMADA AL BACK =====
-        resp = BitacoraAPIClient.list_dt(
-            15,
-            dt_params,
-            request
-        )
-
-        data = resp.get("response", {})
-
-        # ===== RESPUESTA A DATATABLE =====
-        return JsonResponse({
-            "draw": data.get("draw", draw),
-            "recordsTotal": data.get("recordsTotal", 0),
-            "recordsFiltered": data.get("recordsFiltered", 0),
-            "data": data.get("data", [])
-        })
+            return JsonResponse({
+                "draw": data.get("draw", 1),
+                "recordsTotal": data.get("recordsTotal", 0),
+                "recordsFiltered": data.get("recordsFiltered", 0),
+                "data": data.get("data", [])
+            })
 
     except Exception:
         logger.exception("Error en DataTable de bitácora")
 
         return JsonResponse({
-            "draw": 1,
-            "recordsTotal": 0,
-            "recordsFiltered": 0,
-            "data": []
-        })
+                "draw": 1,
+                "recordsTotal": 0,
+                "recordsFiltered": 0,
+                "data": []
+            })
+    
