@@ -258,43 +258,50 @@ $(document).ready(function () {
 
 });
 /* ================= ENTIDAD → RECORDS ================= */
-document.getElementById("flt-entity").addEventListener("change", function () {
+$('#flt-entity').on('change', function () {
 
-  const entity = this.value;
-  const recordSelect = document.getElementById("flt-record");
+  const entity = $(this).val();
+  const recordSelect = $('#flt-record');
 
-  if (!entity) {
-    recordSelect.innerHTML = '<option value="">Todos</option>';
-    return;
-  }
+  // limpiar select2 correctamente
+  recordSelect.empty().append('<option value="">Todos</option>').trigger('change');
 
-  recordSelect.innerHTML = '<option value="">Cargando...</option>';
+  if (!entity) return;
+
+  recordSelect.append('<option value="">Cargando...</option>').trigger('change');
 
   fetch(`/bit/get-records/?entity=${entity}`)
     .then(res => res.json())
     .then(data => {
 
-      recordSelect.innerHTML = '<option value="">Todos</option>';
+      recordSelect.empty().append('<option value="">Todos</option>');
 
       data.forEach(r => {
-        const option = document.createElement("option");
-        option.value = r.record_id;
-        option.textContent = r.record_id;
-        recordSelect.appendChild(option);
+        recordSelect.append(
+          new Option(r.record_id, r.record_id, false, false)
+        );
       });
+      
+      recordSelect.trigger('change');
 
     })
     .catch(() => {
-      recordSelect.innerHTML = '<option value="">Error</option>';
+      recordSelect.empty().append('<option value="">Error</option>').trigger('change');
     });
 
 });
 
+
 $(document).ready(function () {
 
-  // SELECT2 ENTIDAD
   $('#flt-entity').select2({
     placeholder: "Buscar entidad...",
+    allowClear: true,
+    width: '100%'
+  });
+
+  $('#flt-record').select2({
+    placeholder: "Buscar registro...",
     allowClear: true,
     width: '100%'
   });

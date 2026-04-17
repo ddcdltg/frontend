@@ -51,7 +51,7 @@ def bitacora_view(request):
             entidad,
             v
         )
-        context["registros_catalogo"] = records_resp.get("response", [])
+        context["registros_catalogo"] = []
 
     except Exception:
         logger.exception("Error cargando catálogos de bitácora")
