@@ -80,7 +80,7 @@ def bitacora_data(request):
                 "length": body.get("length", 10),
                 "order": body.get("order", [0]),
                 "columns": body.get("columns", []),
-                "search_value" : data.get('search', '')
+                "search_value" : body.get('search', '')
 
             }
 
