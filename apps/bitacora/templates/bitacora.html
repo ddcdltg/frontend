@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Bitácora</title>
+
+  <!-- Bootstrap -->
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- DataTables -->
+
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+
+</head>
+<body>
+
+<div class="mx-4">
+
+  <!-- ================= FILTROS ================= -->
+
+  <div class="dt-card mb-3">
+    <div class="p-3">
+      <div class="row g-2 align-items-end">
+
+
+    <!-- ENTIDAD -->
+    <div class="col-12 col-lg-2">
+      <label class="form-label mb-1">Entidad</label>
+      <select id="flt-entity" class="form-select form-select-sm">
+        <option value="">Todas</option>
+        {% for e in entidades %}
+          <option value="{{ e.entity_id }}">{{ e.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- REGISTRO -->
+    <div class="col-12 col-lg-2">
+      <label class="form-label mb-1">Registro</label>
+      <select id="flt-record" class="form-select form-select-sm">
+        <option value="">Todos</option>
+        {% for r in registros_catalogo %}
+          <option value="{{ r.record_id }}">{{ r.record_id }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- ACCIÓN -->
+    <div class="col-12 col-lg-2">
+      <label class="form-label mb-1">Acción</label>
+      <select id="flt-action" class="form-select form-select-sm">
+        <option value="">Todas</option>
+        {% for a in acciones %}
+          <option value="{{ a.action_id }}">{{ a.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- FECHAS -->
+    <div class="col-12 col-lg-2">
+      <label class="form-label mb-1">Desde</label>
+      <input id="flt-from" type="date" class="form-control form-control-sm">
+    </div>
+
+    <div class="col-12 col-lg-2">
+      <label class="form-label mb-1">Hasta</label>
+      <input id="flt-to" type="date" class="form-control form-control-sm">
+    </div>
+
+    <!-- BOTONES -->
+    <div class="col-12 d-flex gap-2 justify-content-end mt-2">
+      <button class="btn btn-outline-secondary btn-sm" onclick="limpiarFiltros()">Limpiar</button>
+      <button class="btn btn-secondary btn-sm" onclick="recargarTabla()">Buscar</button>
+    </div>
+
+  </div>
+</div>
+
+
+  </div>
+
+  <!-- ================= TABLA ================= -->
+
+  <div class="dt-card">
+    <div class="table-responsive">
+
+
+  <table id="tabla-bitacora" class="table table-bordered table-sm table-striped">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Evento</th>
+        <th>Fecha</th>
+        <th>Actor</th>
+        <th>Vista</th>
+        <th>IP</th>
+        <th>Acción</th>
+        <th>Entidad</th>
+        <th>Registro</th>
+        <th>Campo</th>
+        <th>Valor</th>
+        <th>Detalle</th>
+      </tr>
+    </thead>
+  </table>
+
+</div>
+
+
+  </div>
+
+</div>
+
+<!-- ================= MODAL ================= -->
+
+<div class="modal fade" id="modalBitacora" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+
+
+  <div class="modal-header">
+    <h5 class="modal-title">Detalle de movimiento</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+  </div>
+
+  <div class="modal-body">
+    <pre id="bitacora-json" class="small bg-light p-2 rounded"></pre>
+  </div>
+
+</div>
+
+
+  </div>
+</div>
+
+<!-- ================= JS ================= -->
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<!-- DataTables -->
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+<!-- Buttons -->
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+
+<!-- Excel -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+let table;
+
+/* ================= MODAL ================= */
+function verDetalle(json) {
+  document.getElementById("bitacora-json").textContent =
+    json && json !== "None" ? json : "Sin detalle";
+
+  new bootstrap.Modal(document.getElementById("modalBitacora")).show();
+}
+
+/* ================= LIMPIAR ================= */
+function limpiarFiltros() {
+  document.querySelectorAll(
+    '#flt-entity, #flt-record, #flt-action, #flt-from, #flt-to'
+  ).forEach(el => el.value = '');
+
+  table.ajax.reload();
+}
+
+/* ================= RECARGAR ================= */
+function recargarTabla() { 
+  table.ajax.reload(); 
+}
+
+/* ================= Buscar ================= */
+function buscadorTabla() {
+  if (table) {
+    table.page(0).draw(false); 
+  }
+}
+
+document.addEventListener("keydown", function(e) {
+  if (e.key === "Enter") {
+    buscadorTabla();
+  }
+});
+
+console.log({
+  entity: $('#flt-entity').val(),
+  action: $('#flt-action').val(),
+});
+
+/* ================= DATA TABLE ================= */
+$(document).ready(function () {
+
+  table = $('#tabla-bitacora').DataTable({
+  processing: true,
+  serverSide: true,
+
+  ajax: {
+    url: "/bit/data/",
+    type: "POST",
+    contentType: "application/json",
+    data: function (d) {
+        return JSON.stringify({
+          draw: d.draw,
+          start: d.start,
+          length: d.length,
+          order: d.order.map(o => ({
+            column: o.column,
+            dir: o.dir
+          })),
+          columns: d.columns.map(c => ({
+            data: c.data
+          })),
+          filters: {
+            table_name: $('#flt-entity').val(),
+            action: $('#flt-action').val(),
+            record_id: $('#flt-record').val(),
+            date_from: $('#flt-from').val(),
+            date_to: $('#flt-to').val()
+          }
+        });
+      }
+    },
+
+    columns: [
+      { data: "audit_id" },
+      { data: "event_id" },
+      { data: "created_at" },
+      { data: "actor_id" },
+      { data: "view_id" },
+      { data: "ip_address" },
+      { data: "action" },
+      { data: "table_name" },
+      { data: "record_id" },
+      { data: "field_name" },
+      { data: "value" },
+      {
+        data: "meta",
+        render: function (data) {
+          return `<button class="btn btn-sm btn-outline-secondary"
+                  onclick="verDetalle('${data || ''}')">Ver</button>`;
+        }
+      }
+    ]
+  });
+
+});
+
+
+/* ================= ENTIDAD → RECORDS ================= */
+$('#flt-entity').on('change', function () {
+
+  const entity = $(this).val();
+  const recordSelect = $('#flt-record');
+
+  // limpiar select2 correctamente
+  recordSelect.empty().append('<option value="">Todos</option>').trigger('change');
+
+  if (!entity) return;
+
+  recordSelect.append('<option value="">Cargando...</option>').trigger('change');
+
+  fetch(`/bit/get-records/?entity=${entity}`)
+    .then(res => res.json())
+    .then(data => {
+
+      recordSelect.empty().append('<option value="">Todos</option>');
+
+      data.forEach(r => {
+        recordSelect.append(
+          new Option(r.record_id, r.record_id, false, false)
+        );
+      });
+
+      recordSelect.trigger('change');
+
+    })
+    .catch(() => {
+      recordSelect.empty().append('<option value="">Error</option>').trigger('change');
+    });
+
+});
+
+
+$(document).ready(function () {
+
+  $('#flt-entity').select2({
+    placeholder: "Buscar entidad...",
+    allowClear: true,
+    width: '100%'
+  });
+
+  $('#flt-record').select2({
+    placeholder: "Buscar registro...",
+    allowClear: true,
+    width: '100%'
+  });
+
+});
+
+</script>
+
+</body>
+</html>
+
