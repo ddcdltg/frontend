@@ -72,6 +72,7 @@ def bitacora_data(request):
 
     try:
             body = json.loads(request.body)
+            search_value = body.get('search', '')
 
             # PARAMS BASE DATATABLE
             dt_params = {
@@ -80,7 +81,8 @@ def bitacora_data(request):
                 "length": body.get("length", 10),
                 "order": body.get("order", [0]),
                 "columns": body.get("columns", []),
-                "search_value" : body.get('search', '')
+                "search_value": search_value
+                
 
             }
 
@@ -94,6 +96,7 @@ def bitacora_data(request):
             record = f.get("record_id")
             date_from = f.get("date_from")
             date_to = f.get("date_to")
+            
             
 
             if entity:
@@ -110,17 +113,6 @@ def bitacora_data(request):
 
             if date_to:
                 filters["date_to"] = date_to
-
-            # ================= SEARCH GLOBAL =================
-            if search_value:
-                queryset = queryset.filter(
-                    Q(event_id__icontains=search_value) |
-                    Q(action__icontains=search_value) |
-                    Q(table_name__icontains=search_value) |
-                    Q(record_id__icontains=search_value) |
-                    Q(field_name__icontains=search_value) |
-                    Q(value__icontains=search_value)
-                )
 
             if filters:
                 dt_params["filters"] = filters
