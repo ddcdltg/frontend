@@ -203,6 +203,21 @@ $(document).ready(function () {
   processing: true,
   serverSide: true,
 
+  dom: 'Bfrtip',   
+
+  buttons: [
+    {
+      extend: 'csv',
+      text: 'Exportar CSV',
+      className: 'btn btn-sm btn-outline-primary'
+    },
+    {
+      extend: 'excel',
+      text: 'Exportar Excel',
+      className: 'btn btn-sm btn-outline-success'
+    }
+  ],
+
   ajax: {
     url: "/bit/data/",
     type: "POST",
